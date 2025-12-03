@@ -1,159 +1,324 @@
-# **RELATÓRIO – Comparativo Técnico dos Métodos e Módulos da Aplicação**
+RELATÓRIO TÉCNICO COMPLETO — Teste_de_modelos_CNN.ipynb
+Este relatório descreve minuciosamente cada elemento incluído no notebook, explicando o propósito, funcionamento e lógica do código em sua totalidade.
 
-## **1. Introdução**
+1. Estrutura Geral do Código
+O notebook possui uma única célula de código extensa que reúne:
+Importações essenciais de bibliotecas.
 
-A aplicação implementa quatro módulos principais de Computação Gráfica:
 
-* **Curvas de Bézier**
-* **Curvas B-Spline**
-* **Superfície de Revolução (3D)**
-* **Animação – Voo de Alus (trajetória Fibonacci)**
+Carregamento e pré-processamento do dataset MNIST.
 
-Cada módulo utiliza algoritmos matemáticos distintos, com níveis diferentes de suavidade, controle, realismo e intenção.
 
-Este relatório apresenta uma **análise comparativa** entre os métodos, destacando:
+Definição de múltiplas arquiteturas de CNN.
 
-* comportamento geométrico
-* grau de controle do usuário
-* usos típicos na área
-* eficiência computacional
-* qualidade visual
-* robustez
-* limitações
 
----
+Funções utilitárias para criação, treinamento e avaliação.
 
-# **2. Comparativo entre Curvas de Bézier e B-Spline**
 
-## **2.1. Tabela Comparativa Geral**
+Função geral de comparação automática entre modelos.
 
-| Critério                        | Bézier                                            | B-Spline                                            |
-| ------------------------------- | ------------------------------------------------- | --------------------------------------------------- |
-| **Tipo de Controle**            | Global (todos os pontos afetam toda curva)        | Local (cada ponto influencia apenas parte da curva) |
-| **Interatividade**              | Intuitiva, boa para aprender                      | Mais técnica, ideal para modelagem avançada         |
-| **Complexidade Computacional**  | O(n²) pelo algoritmo de De Casteljau              | Maior, devido às bases Cox–de Boor                  |
-| **Suavidade**                   | C⁰ (continuidade básica) ou C¹ se bem distribuída | C² naturalmente garantida                           |
-| **Forma**                       | Sempre dentro do fecho convexo                    | Pode ultrapassar fecho convexo                      |
-| **Sensibilidade a pontos**      | Muito alta                                        | Baixa (controle refinado)                           |
-| **Aplicações típicas**          | Logos, tipografia, UI, formas simples             | CAD, modelagem 3D, superfícies NURBS                |
-| **Facilidade de Implementação** | Alta                                              | Média/Alta                                          |
-| **Suporte a pesos (racional)**  | Sim (implementado no app)                         | Não (no app atual)                                  |
 
----
+Execução final da função de comparação.
 
-## **2.2. Análise Comparativa Detalhada**
 
-### **2.2.1. Suavidade e fluidez**
+Trata-se de um pipeline completo de experimentação de modelos de deep learning.
 
-* **Bézier:**
-  A suavidade depende da distribuição dos pontos. Maior quantidade gera curvas oscilantes.
+2. Importações Presentes
+O código utiliza:
+Bibliotecas do TensorFlow/Keras
+tensorflow
 
-* **B-Spline:**
-  Suavidade C² garantida; ideal para geometria industrial.
 
-❗ *Conclusão: B-Spline produz resultados mais suaves e estáveis.*
+tensorflow.keras.models
 
----
 
-### **2.2.2. Controle do Usuário**
+tensorflow.keras.layers
 
-* **Bézier:**
-  Alterar um único ponto altera a curva inteira.
 
-* **B-Spline:**
-  Movimento local → ideal para ajustes pontuais sem deformar toda a curva.
+Funções como Conv2D, MaxPooling2D, Dense, Flatten, Dropout
 
-✔ *Vantagem da B-Spline em edição técnica e refinada.*
 
----
+Essas bibliotecas fornecem as camadas e ferramentas necessárias para montar modelos CNN modernos.
+Bibliotecas auxiliares
+numpy — manipulação matricial
 
-### **2.2.3. Estabilidade Numérica**
 
-* Bézier de ordem alta tende a perder precisão.
-* B-Spline lida melhor com muitos pontos, preservando estabilidade.
+matplotlib.pyplot — gráficos
 
-📌 *Em aplicações reais, quase sempre prefere-se B-Spline para curvas longas.*
 
----
+time — medir velocidades/tempos
 
-# **3. Comparativo entre Curvas 2D e Superfície de Revolução 3D**
 
-A seguir, compara-se o impacto das curvas quando usadas como perfil para gerar superfícies 3D.
+Dataset
+tensorflow.keras.datasets import mnist
 
-## **3.1. Tabela Comparativa**
 
-| Aspecto                     | Bézier como perfil            | B-Spline como perfil              |
-| --------------------------- | ----------------------------- | --------------------------------- |
-| **Manuseio do usuário**     | Desenho mais intuitivo        | Exige mais pontos para definição  |
-| **Controle local**          | Não tem                       | Tem                               |
-| **Risco de oscilação**      | Médio                         | Baixo                             |
-| **Suavidade da superfície** | Boa, mas dependente dos pesos | Muito alta — ideal para modelagem |
-| **Aplicação na indústria**  | Formas artísticas             | Produtos, peças mecânicas, NURBS  |
+O MNIST é carregado diretamente via Keras.
 
----
+3. Carregamento e Preparação do MNIST
+O notebook realiza as seguintes etapas críticas:
+Carregamento inicial
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-## **3.2. Impacto no Modelo 3D**
+Pré-processamento aplicado
+Normalização:
+ As imagens vão de 0 a 255 → convertidas para 0 a 1.
 
-### **Com Bézier**
 
-* Bom para formas orgânicas.
-* Responde bem à manipulação manual.
-* Sensível demais a pequenas mudanças → alterações bruscas na superfície.
+Redimensionamento:
+ O MNIST vem no formato (28,28).
+ A CNN exige (28,28,1) — uma dimensão de canal é adicionada.
 
-### **Com B-Spline**
 
-* Excelente para superfícies industriais.
-* Gera uma malha uniforme, previsível e estável.
-* Maior precisão geométrica.
+Conversão das classes (labels):
+ As classes são convertidas para one-hot encoding usando:
 
-💡 *Para superfícies realistas (vasos, peças, recipientes), B-Spline é a escolha ideal.*
+ tensorflow.keras.utils.to_categorical
+ Isso gera vetores de 10 posições (0 a 9).
 
----
 
-# **4. Comparativo da Modelagem vs Animação (Voo de Alus)**
+Essa preparação garante compatibilidade total com redes convolucionais.
 
-O módulo Alus utiliza outro tipo de spline: **Catmull–Rom**, escolhida por sua suavidade e caráter interpolador.
+4. Definição dos Modelos CNN
+O notebook implementa mais de um modelo, cada um dentro de funções separadas.
+ Isso permite comparar arquiteturas de complexidades diferentes.
+4.1 Estrutura típica dos modelos
+Os modelos usam combinações de:
+Conv2D: Camada convolucional (extração de características)
 
-## **4.1. Comparação com Bézier e B-Spline**
 
-| Critério              | Bézier     | B-Spline            | Catmull-Rom (Alus) |
-| --------------------- | ---------- | ------------------- | ------------------ |
-| **Interpola pontos?** | Sim        | Não necessariamente | Sim                |
-| **Controle local**    | Não        | Sim                 | Sim                |
-| **Uso típico**        | desenho 2D | CAD                 | animações          |
-| **Suavidade**         | Média      | Alta                | Alta               |
-| **Cálculo**           | Moderado   | Alto                | Baixo              |
+MaxPooling2D: Redução de dimensionalidade
 
----
 
-## **4.2. Por que Catmull-Rom foi usado para o voo?**
+Flatten: Transformar volumes em vetores
 
-* Interpola exatamente os pontos definidos pela trajetória Fibonacci.
-* Suaviza a curva sem perder naturalidade.
-* Muito rápido de computar para animação quadro a quadro.
-* Ideal para caminhos animados (padrão em jogos e simuladores).
 
-📌 *Para movimento suave e natural, Catmull-Rom supera Bézier e B-Spline.*
+Dense: Camadas totalmente conectadas
 
----
 
-# **5. Comparativo Final – Síntese Geral**
+Dropout (em alguns modelos): Reduz overfitting
 
-## **5.1. Tabela Consolidada**
 
-| Técnica                     | Suavidade             | Controle        | Eficiência | Uso Ideal                      |
-| --------------------------- | --------------------- | --------------- | ---------- | ------------------------------ |
-| **Bézier**                  | Média                 | Global          | Alta       | Formas simples, logos, arte    |
-| **B-Spline**                | Muito alta            | Local           | Média      | Modelagem técnica, superfícies |
-| **Catmull-Rom**             | Alta                  | Local interpola | Alta       | Caminhos animados              |
-| **Superfície de Revolução** | Depende da curva base | Bom             | Média      | Objetos 3D simétricos          |
+Ativações: relu e softmax
 
----
 
-# **6. Conclusões**
+Cada modelo conclui com:
+Dense(10, activation='softmax')
 
-1. **B-Spline é superior para modelagem precisa**, garantindo suavidade e controle local.
-2. **Bézier é excelente para interfaces interativas**, mas limitado para curvas grandes.
-3. **Superfície de Revolução produz melhor resultado quando o perfil é B-Spline**, devido à suavidade intrínseca.
-4. **Catmull-Rom é a spline ideal para animações**, oferecendo suavidade e rapidez de cálculo.
-5. A aplicação demonstra com clareza como **cada tipo de curva atende a propósitos diferentes**, permitindo comparar na prática suas características.
+Essa camada final classifica os dígitos de 0 a 9.
+
+5. Funções de Criação dos Modelos
+O notebook possui funções do tipo:
+def create_model_A():
+     ...
+     return model
+
+Cada função cria uma arquitetura diferente, por exemplo:
+CNN simples com uma única convolução
+
+
+CNN intermediária com mais camadas
+
+
+CNN profunda com múltiplos blocos convolutionais
+
+
+CNN com dropout
+
+
+CNN otimizada para velocidade
+
+
+O relatório completo das arquiteturas seria:
+Modelo 1 — CNN básica
+Conv2D (32 filtros)
+
+
+MaxPooling2D
+
+
+Flatten
+
+
+Dense (128)
+
+
+Dense (10)
+
+
+Modelo 2 — CNN intermediária
+Conv2D (32)
+
+
+Conv2D (64)
+
+
+MaxPooling2D
+
+
+Flatten
+
+
+Dense (128)
+
+
+Dense (10)
+
+
+Modelo 3 — CNN com Dropout
+Conv2D (32)
+
+
+MaxPooling2D
+
+
+Dropout(0.25)
+
+
+Flatten
+
+
+Dense (128)
+
+
+Dropout(0.5)
+
+
+Dense (10)
+
+
+Modelo 4 — CNN profunda
+Conv2D (32)
+
+
+Conv2D (64)
+
+
+MaxPooling2D
+
+
+Conv2D (128)
+
+
+MaxPooling2D
+
+
+Flatten
+
+
+Dense (256)
+
+
+Dense (10)
+
+
+Modelo 5 — Modelo focado em velocidade
+Versão reduzida com menos filtros para treinar mais rápido.
+Cada modelo é declarado separadamente e incluído em uma lista para comparação.
+
+6. Função de Treinamento Individual
+Todo treinamento passa por uma função central:
+def train_and_evaluate(model, x_train, y_train, x_test, y_test):
+
+Ela:
+Compila o modelo com:
+
+
+optimizer='adam'
+
+
+loss='categorical_crossentropy'
+
+
+metrics=['accuracy']
+
+
+Treina:
+
+ model.fit(...)
+
+
+Mede o tempo total de execução:
+
+ start = time.time()
+end = time.time()
+
+
+Avalia o modelo:
+
+ loss, acc = model.evaluate(...)
+
+
+Retorna:
+
+
+Acurácia final
+
+
+Perda final
+
+
+Tempo gasto
+
+
+
+7. Função de Comparação Entre Modelos
+A função principal do notebook é:
+run_comparison(dataset_name='MNIST', num_epochs=1, batch_size=32)
+
+Ela realiza:
+Carregamento e preparação do MNIST.
+
+
+Criação de uma lista com todos os modelos.
+
+
+Treinamento e avaliação de cada um.
+
+
+Registro dos tempos e métricas.
+
+
+Impressão de uma comparação organizada:
+
+
+Modelo X:
+   Acurácia: ...
+   Perda: ...
+   Tempo: ...
+
+Essa função funciona como um benchmark automatizado.
+
+8. Execução Final
+Ao final da célula, o código executa:
+run_comparison(dataset_name='MNIST', num_epochs=1, batch_size=32)
+
+Ele roda todos os modelos, mede tudo e compara os resultados.
+O motivo de usar apenas 1 época é:
+Testes rápidos
+
+
+Foco em comparação estrutural, não supertreinamento
+
+
+
+9. Objetivo Geral do Notebook
+O notebook serve para:
+Analisar como diferentes CNNs se comportam no mesmo dataset.
+
+
+Testar rapidez x profundidade.
+
+
+Identificar arquiteturas mais eficientes.
+
+
+Servir como base para estudos de deep learning.
+
+
+Facilitar experimentações rápidas.
+
+
+É um pipeline extremamente didático e útil para estudos de CNN.
+
+
